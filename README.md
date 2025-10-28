@@ -2,7 +2,7 @@
 
 - Go Generics are defined using type parameters and can be used on functions, structs, interfaces, and methods.
 - Type parameters are specified within square brackets `[]` after the function or type name.
-- Generics can be constrained in two ways:
+- Generic types must be constrained using type constraints to specify the allowed types for the type parameters.
 	- **Type Sets**: Define a set of types that a type parameter can accept.
 		- Example: 
 		```go
@@ -10,7 +10,7 @@
 			fmt.Println(value)
 		}
 		```
-		> The Go experimental library `golang.org/x/exp/constraints` provides predefined some useful type sets like `constraints.Ordered` for types that support ordering operators (`<`, `>`, etc.) or `constraints.Integer` for integer types.
+		> The Go experimental library `golang.org/x/exp/constraints` provides some predefined type sets like `constraints.Ordered` for types that support ordering operators (`<`, `>`, etc.) or `constraints.Integer` for integer types.
 
 	- **Method Sets**: Define an interface that needs to be implemented by the type parameter.
 		- Example:
@@ -41,7 +41,7 @@
 	PrintValue(42)          // Type parameter T is inferred as int
 	PrintValue("Hello")     // Type parameter T is inferred as string
 	```
-- At compile time, Go uses **Monomorphization** to generate type specific versions of generic functions/types for each unique set of type arguments used in the code. This ensures that there is no runtime overhead associated with using generics.
+- At compile time, Go uses **Monomorphization** to generate type specific versions of generic functions/types for each unique set of type arguments used in the code. This ensures that there is no runtime overhead associated with using generics. This will however lead to larger binary sizes if many different type arguments are used.
 
 ## Go Generics Limitations
 - Methods cannot have their own type parameters; only the type they are defined on (receiver) can have type parameters.
@@ -89,8 +89,8 @@
 	}
 
 	// Workaround:
-	func ProcessBox[T any](box Box[T]) {
-		val := any(box).(Box).GetValue() // This is allowed
+	func ProcessBox[T Box](box T) {
+		val := Box(box).GetValue() // This is allowed
 	}
 	```
 - Multiple interfaces cannot be used as a type set constraint.
