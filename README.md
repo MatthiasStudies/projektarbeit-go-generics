@@ -3,16 +3,7 @@
 - Go Generics are defined using type parameters and can be used on functions, structs, interfaces, and methods.
 - Type parameters are specified within square brackets `[]` after the function or type name.
 - Generic types must be constrained using type constraints to specify the allowed types for the type parameters.
-	- **Type Sets**: Define a set of types that a type parameter can accept.
-		- Example: 
-		```go
-		func PrintType[T int | string](value T) {
-			fmt.Println(value)
-		}
-		```
-		> The Go experimental library `golang.org/x/exp/constraints` provides some predefined type sets like `constraints.Ordered` for types that support ordering operators (`<`, `>`, etc.) or `constraints.Integer` for integer types.
-
-	- **Method Sets**: Define an interface that needs to be implemented by the type parameter.
+	- **Constrained by interface**: Define an interface that needs to be implemented by the type parameter.
 		- Example:
 		```go
 		type Stringer interface {
@@ -31,6 +22,37 @@
 				return a == b
 			}
 			```
+	- **Constrained by type**: Define a (base) type that the type parameter must be based on.
+		- Example:
+		```go
+		func PrintValue[T ~int](value T) {
+			fmt.Println(value)
+		}
+
+		type MyInt int
+
+		PrintValue(MyInt(42)) // Valid, MyInt's underlying type is int
+		PrintValue(100)       // Valid, int is allowed
+		```
+		> The `~` operator allows the type parameter to accept any type whose underlying type is the specified base type.
+
+	- **Constrained by multiple types (type sets)**: Define a set of types that a type parameter can accept.
+		- Example: 
+		```go
+		func PrintType[T int | string](value T) {
+			fmt.Println(value)
+		}
+
+		//or
+
+		func SumNumbers[T interface {int | float64}](a, b T) T {
+			return a + b
+		}
+
+		PrintType(42)        // Valid, int is allowed
+		PrintType("Hello")   // Valid, string is allowed
+		```
+		> The Go experimental library `golang.org/x/exp/constraints` provides some predefined type sets like `constraints.Ordered` for types that support ordering operators (`<`, `>`, etc.) or `constraints.Integer` for integer types.
 
 - Go can infer type parameters when calling generic functions, so you often don't need to specify them explicitly.
 	- Example:
@@ -73,7 +95,7 @@
 		str, ok := any(value).(string) // This is allowed
 	}
 	```
-- Methods or fields of struct-constraines cannot be accessed on the type parameter directly.
+- Methods or fields of struct-constraints cannot be accessed on the type parameter directly.
 	```go
 	type Box struct {
 		value int
@@ -107,3 +129,4 @@
 		// This is not allowed 
 	}
 	```
+
