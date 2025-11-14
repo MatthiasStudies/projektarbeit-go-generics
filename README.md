@@ -178,13 +178,27 @@ Der Go Typechecker verwendet Scopes (`types.Scope`), um Objekte zu organisieren 
 #### Scope Hierarchie
 Scopes sind hierarchisch organisiert, wobei jeder Scope einen übergeordneten Scope hat. 
 
-1. **`universe`-Scope (root)**: Der globale `types.Universe`-scoe enthält vordefinierte Typen und Funktionen (z.B. `int`, `string`, `println`). Dieser sollte niemals verändert werden.
+1. **`universe`-Scope (root)**: Der globale `types.Universe`-Scope enthält vordefinierte Typen und Funktionen (z.B. `int`, `string`, `println`). Dieser sollte niemals verändert werden.
 2. **`package`-Scope**: Jeder Paket-Scope enthält alle Objekte, die in einem bestimmten Paket deklariert sind. Jedes Paket hat seinen eigenen Scope, und hat den `universe`-Scope als übergeordnet.
 3. **Datei-Scope**: Jede Quellcodedatei (`*ast.File`) hat ihren eigenen Scope, der den enstprechenden Paket-Scope als übergeordneten Scope hat.
 4. **Blocklevel-Scopes**: Jede Kontrollanweisung oder Funktion hat ihren eigenen Scope, der den übergeordneten Scope (z.B. Datei-Scope ) als übergeordneten Scope hat. Geschachtelte Blöcke (z.B. Schleifen, `if`-Anweisungen) haben ebenfalls eigene Scopes, die den Scope der umgebenden Funktion oder des Blocks untergeordnet sind.
 
 #### Namensauflösung
+Um ein Objekt anhand seines Namens zu finden, stellt das `types.Scope`-Struct zwei zentrale Methoden bereit:
+- `Lookup(name string) *Object`: Sucht im aktuellen Scope nach einem Objekt mit dem angegebenen Namen. Wenn das Objekt nicht gefunden wird, wird `nil` zurückgegeben.
+- `LookupParent(name string, pos token.Pos) (*Scope, Object)`: Sucht rekursiv in dem aktuellen Scope und den übergeordnet Scopes nach einem Objekt mit dem angegebenen Namen. Der `pos`-Parameter verweist dabei auf die Position im Quellcode, an welcher nach dem Objekt gesucht werden soll. Das ist nötig, um sicherzustellen, dass ein Objekt nur gefunden wird, wenn es zum Zeitpunkt der Suche bereits deklariert wurde (Lexikalische Sichtbarkeit). Z.B. kann dadurch eine Variable im gleichen Scope nicht vor ihrer Deklaration gefunden werden.
 
+### Typen
+Jedes Objekt (`types.Object`) des Go Typecheckers hat einen zugehörigen Typ (`types.Type`), der den Datentyp der deklarierten Entität beschreibt. Der `types.Type`-Interface ist die zentrale Abstraktion für alle Typen in Go, einschließlich primitiver Typen (z.B. `int`, `string`), zusammengesetzter Typen (z.B. Structs, Slices, Maps) und generischer Typen mit Typparametern.
+Das `types.Type`-Interface definiert nur wenige Methoden, da Typen sehr unterschiedlich sein können. Die primäre Methode ist:
+- `Underlying() Type`: Gibt den zugrunde liegenden Typ zurück. Dies ist besonders nützlich für benutzerdefinierte Typen, um den Basisdatentyp zu ermitteln. Für primitive Typen gibt diese Methode den Typ selbst zurück. Zugrunde liegende Typen sind niemals benannte Typen oder Aliase.
+
+#### Wichtige `types.Type`s
+- `*types.Basic`: Repräsentiert primitive Typen wie `int`, `string`, `bool`.
+- `*types.Struct`: Repräsentiert Struct-Typen mit Feldern.
+- `*types.Interface`: Repräsentiert Interface-Typen mit Methoden.
+- `*types.Signature`: Repräsentiert Funktions- und Methodensignaturen.
+- `*types.Named`: Repräsentiert benannte Typen, die durch `type`-Deklarationen definiert sind.
 
 
 ## Quellen und weiterführende Literatur:
