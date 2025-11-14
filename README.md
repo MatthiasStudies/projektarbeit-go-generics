@@ -18,7 +18,7 @@
 				fmt.Println(value.String())
 			}
 			```
-		> Die spezielle Einschränkung `comparable` erlaubt jeden Typ, der Vergleichsoperatoren (`==`, `!=`) unterstützt. Das ist nützlich, wenn der generische Typ als Schlüssel in Maps verwendet wird oder bei Gleichheitsprüfungen.
+			> Die spezielle Einschränkung `comparable` erlaubt jeden Typ, der Vergleichsoperatoren (`==`, `!=`) unterstützt. Das ist nützlich, wenn der generische Typ als Schlüssel in Maps verwendet wird oder bei Gleichheitsprüfungen.
 	- **Einschränkung durch Typ**: Definiere einen (Basis-)Typ, auf dem der Typparameter basieren muss.
 		- Beispiel: 
 			```go
@@ -31,7 +31,7 @@
 			PrintValue(MyInt(42)) // Gültig, der zugrunde liegende Typ von MyInt ist int
 			PrintValue(100)       // Gültig, int ist erlaubt
 			```
-		> Der Operator `~` erlaubt dem Typparameter, jeden Typ zu akzeptieren, dessen zugrunde liegender Typ dem angegebenen Basistyp entspricht.
+			> Der Operator `~` erlaubt dem Typparameter, jeden Typ zu akzeptieren, dessen zugrunde liegender Typ dem angegebenen Basistyp entspricht.
 
 	- **Einschränkung durch mehrere Typen (Type Sets)**: Definiere eine Menge von Typen, die ein Typparameter akzeptieren kann.
 		- Beispiel: 
@@ -49,7 +49,7 @@
 			PrintType(42)        // Gültig, int ist erlaubt
 			PrintType("Hello")   // Gültig, string ist erlaubt
 			```
-		> Die experimentelle Go-Bibliothek `golang.org/x/exp/constraints` stellt einige vordefinierte Typmengen bereit, wie `constraints.Ordered` für Typen, die Ordnungsoperatoren (`<`, `>`, etc.) unterstützen, oder `constraints.Integer` für Ganzzahltypen.
+			> Die experimentelle Go-Bibliothek `golang.org/x/exp/constraints` stellt einige vordefinierte Typmengen bereit, wie `constraints.Ordered` für Typen, die Ordnungsoperatoren (`<`, `>`, etc.) unterstützen, oder `constraints.Integer` für Ganzzahltypen.
 
 - Go kann Typparameter beim Aufruf generischer Funktionen ableiten, daher müssen sie oft nicht explizit angegeben werden.
 	- Beispiel:
@@ -142,8 +142,8 @@
 	- **Typen (`types.Type`)**: Repräsentieren die verschiedenen Typen in Go, einschließlich primitiver Typen, zusammengesetzter Typen (Structs, Slices, Maps) und generischer Typen mit Typparametern.
 	- **Scopes (`types.Scope`)**: Repräsentieren ein mapping von Bezeichnern zu Objekten in einem bestimmten Gültigkeitsbereich (z.B. Paket-, Funktions- oder Blockebene).
 
-### `types.Object`: Bausteine des Typecheckers
-Jedes deklarierte Element in Go wird durch ein `types.Object` repräsentiert. Dieses wird verwendet, um Informationen über das deklarierte Element zu speichern und darauf zuzugreifen. Beispielsweise kann dadurch im Fall von Fehler- oder Code-Analyse-Tools auf Metadaten und präzise Positionen von Deklarationen im Quellcode zugegriffen werden. Das `types.Object`-Interface setzt u.A. folgende Methoden voraus (Auswahl):
+### Bausteine des Typecheckers
+Jedes deklarierte Element in Go wird im Typechecker durch ein `types.Object` repräsentiert. Dieses wird verwendet, um Informationen über das deklarierte Element zu speichern und darauf zuzugreifen. Beispielsweise kann dadurch im Fall von Fehler- oder Code-Analyse-Tools auf Metadaten und präzise Positionen von Deklarationen im Quellcode zugegriffen werden. Das `types.Object`-Interface setzt u.A. folgende Methoden voraus (Auswahl):
 - `Name() string`: Gibt den Namen des Objekts zurück (z.b. den Variablennamen).
 - `Exported() bool`: Gibt zurück, ob das Objekt exportiert ist (d.h. ob es mit einem Großbuchstaben beginnt).
 - `Type() Type`: Gibt den Typ des Objekts zurück (z.B. den Typ einer Variable oder die signatur einer Funktion).
@@ -163,7 +163,22 @@ Jedes deklarierte Element in Go wird durch ein `types.Object` repräsentiert. Di
 Objekte sind kanonisch, d.h. es gibt genau ein `types.Object` für jede deklarierte Entität im Quellcode. Dies ermöglicht eine konsistente und effiziente Verwaltung von Typinformationen während der Typechecking-Phase.
 
 
-# Quellen und weiterführende Literatur:
+### Organisation von Objekten
+Der Go Typechecker verwendet Scopes (`types.Scope`), um Objekte zu organisieren und den Gültigkeitsbereich von Bezeichnern zu verwalten. Jeder Scope wird durch einen lexikalischen Block im Quellcode beschrieben (z.B. ein Paket, eine Funktion oder ein Codeblock), in dem Bezeichner deklariert und verwendet werden können. 
+
+#### Scope Hierarchie
+Scopes sind hierarchisch organisiert, wobei jeder Scope einen übergeordneten Scope hat. 
+
+1. **`universe`-Scope (root)**: Der globale `types.Universe`-scoe enthält vordefinierte Typen und Funktionen (z.B. `int`, `string`, `println`). Dieser sollte niemals verändert werden.
+2. **`package`-Scope**: Jeder Paket-Scope enthält alle Objekte, die in einem bestimmten Paket deklariert sind. Jedes Paket hat seinen eigenen Scope, und hat den `universe`-Scope als übergeordnet.
+3. **Datei-Scope**: Jede Quellcodedatei (`*ast.File`) hat ihren eigenen Scope, der den enstprechenden Paket-Scope als übergeordneten Scope hat.
+4. **Blocklevel-Scopes**: Jede Kontrollanweisung oder Funktion hat ihren eigenen Scope, der den übergeordneten Scope (z.B. Datei-Scope ) als übergeordneten Scope hat. Geschachtelte Blöcke (z.B. Schleifen, `if`-Anweisungen) haben ebenfalls eigene Scopes, die den Scope der umgebenden Funktion oder des Blocks untergeordnet sind.
+
+#### Namensauflösung
+
+
+
+## Quellen und weiterführende Literatur:
 - [Tutorial: Getting started with generics](https://go.dev/doc/tutorial/generics)
 - [`go/types`: The Go Type Checker](https://github.com/golang/example/tree/7f05d217867b2af52b0a28c6d1c91df97e1b5b39/gotypes)
 - [Updating tools to support type parameters](https://github.com/golang/exp/tree/a4bb9ffd2546b4ac9773d60f1e9a6ff4ba82ad23/typeparams/example)
