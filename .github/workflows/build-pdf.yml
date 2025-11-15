@@ -34,7 +34,7 @@ jobs:
             sudo apt-get install xvfb libfontconfig wkhtmltopdf
         - name: Build PDF
           run: |
-            markdown-toc -i README.md
+            sed -i '1d' README.md
             GITHUB_HASH=$(git rev-parse --short HEAD)
             DATE=$(date +'%Y%m%d%H%M%S')
             GITHUB_REF_TEXT="\n\n*** \n\n_GitHub Version \`${GITHUB_HASH} (${DATE})\`_"
