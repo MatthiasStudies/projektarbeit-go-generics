@@ -42,12 +42,13 @@ jobs:
             echo -e "\n$GITHUB_REF_TEXT" >> README.md
         - name: Build PDF
           run: |
-            pandoc README.md -o documentation.pdf --pdf-engine=wkhtmltopdf --css=./assets/pdf_style.css \
+            pandoc README.md -o "Projektarbeit Go.pdf" --pdf-engine=wkhtmltopdf --css=./assets/pdf_style.css \
                   -V margin-top=${{ env.MARGIN }} -V margin-bottom=${{ env.MARGIN }} \
                   -V margin-left=${{ env.MARGIN }} -V margin-right=${{ env.MARGIN }} \
                   -V papersize=a4
         - name: Release PDF
           uses: ncipollo/release-action@v1
           with:
-            artifacts: "documentation.pdf"
+            artifacts: "Projektarbeit Go.pdf"
             tag: pdf-build-$(date +'%Y%m%d%H%M%S')
+            makeLatest: true
