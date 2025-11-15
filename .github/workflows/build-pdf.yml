@@ -32,21 +32,17 @@ jobs:
           run: |
             npm install -g markdown-toc
             sudo apt-get install xvfb libfontconfig wkhtmltopdf
-        - name: Generate Table of Contents
+        - name: Build PDF
           run: |
             markdown-toc -i README.md
-        - name: Add GitHub Version to README
-          run: |
             GITHUB_HASH=$(git rev-parse --short HEAD)
             DATE=$(date +'%Y%m%d%H%M%S')
             GITHUB_REF_TEXT="\n\n*** \n\n_GitHub Version \`${GITHUB_HASH} (${DATE})\`_"
             echo -e "\n$GITHUB_REF_TEXT" >> README.md
-        - name: Build PDF
-          run: |
             pandoc README.md -o "Projektarbeit Go.pdf" --pdf-engine=wkhtmltopdf --css=./assets/pdf_style.css \
-                  -V margin-top=${{ env.MARGIN }} -V margin-bottom=${{ env.MARGIN }} \
-                  -V margin-left=${{ env.MARGIN }} -V margin-right=${{ env.MARGIN }} \
-                  -V papersize=a4
+                  --variable margin-top=${{ env.MARGIN }} --variable margin-bottom=${{ env.MARGIN }} \
+                  --variable margin-left=${{ env.MARGIN }} --variable margin-right=${{ env.MARGIN }} \
+                  --variable papersize=a4
         - name: Release PDF
           uses: ncipollo/release-action@v1
           with:
