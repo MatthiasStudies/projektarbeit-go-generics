@@ -1,4 +1,8 @@
+[Download PDF](https://github.com/MatthiasStudies/projektarbeit-go/releases/latest/download/Projektarbeit.Go.pdf)
+
 # Projektarbeit: Go-Generics und der Typechecker (wip)
+
+<!-- toc -->
 
 ## Grundlagen und Einschränkungen von Go-Generics
 
@@ -209,6 +213,7 @@ Zuweisbarkeit regelt, welche Paare von Typen in Zuweisungen (darunter zählen au
 	 - `V` und `T` sind identisch.
 	 - `V` und `T` haben den gleichen zugrunde liegenden Typ und mindestens einer von `T` oder `V` ist kein benannter Typ.
 		> Achtung: Benannte Typen bezieht sich hier auf die durch Definition der Go-Spezifikation, nicht auf die vom Typecheker verwendeten `*types.Named`. Daher sind `int`, `string`, etc. auch benannte Typen.
+
 		```go
 		type MyInt int
 		var a int
