@@ -1,5 +1,3 @@
-[Download PDF](https://github.com/MatthiasStudies/projektarbeit-go/releases/latest/download/Projektarbeit.Go.pdf)
-
 # Projektarbeit: Go-Generics und der Typechecker (wip)
 
 ## Grundlagen und Einschränkungen von Go-Generics
@@ -211,21 +209,22 @@ Um zu überprüfen, ob zwei Typen miteinander kompatibel sind, unterscheided Go 
 Zuweisbarkeit regelt, welche Paare von Typen in Zuweisungen (darunter zählen auch Funktionsaufrufe mit Parametern, Map-Zugriff, etc.) verwendet werden können. Für zwei Typen `T` und `V` ist `V` zuweisbar zu `T`, wenn eines der folgenden Kriterien erfüllt ist (Auswahl):
 - `V` und `T` sind identisch.
 - `V` und `T` haben den gleichen zugrunde liegenden Typ und mindestens einer von `T` oder `V` ist kein benannter Typ.
+
 	> Achtung: Benannte Typen bezieht sich hier auf die durch Definition der Go-Spezifikation, nicht auf die vom Typecheker verwendeten `*types.Named`. Daher sind `int`, `string`, etc. auch benannte Typen.
 
 	```go
-		type MyInt int
-		var a int
-		var b MyInt
+	type MyInt int
+	var a int
+	var b MyInt
 
-		a = b // Nicht erlaubt: auf beiden Seiten sind benannte Typen
+	a = b // Nicht erlaubt: auf beiden Seiten sind benannte Typen
 
 
-		type MySlice []int
-		var c []int
-		var d MySlice
+	type MySlice []int
+	var c []int
+	var d MySlice
 
-		c = d // Erlaubt: zugrunde liegender Typ ist gleich ([]int) und c ist kein benannter Typ
+	c = d // Erlaubt: zugrunde liegender Typ ist gleich ([]int) und c ist kein benannter Typ
 		```
 
 - Weitere spezielle Regeln für bestimmte Typen (z.B. Schnittstellen, Funktionen, etc.).
